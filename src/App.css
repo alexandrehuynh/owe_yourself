@@ -45,36 +45,79 @@ ul {
   list-style: none;
   padding: 0;
   margin: 0;
+  width: 100%;  /* Ensure it takes up the available space */
 }
 
+/* Ensure the entire app container is locked */
+.app {
+  max-width: 400px;
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 30px 20px;
+  margin: 20px;
+}
+
+/* The task list container */
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%; /* Fix the width to ensure the tasks don't grow */
+}
+
+/* The task item boxes */
 li {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Make sure checkbox and text are separated */
-  padding: 10px 0;
+  justify-content: space-between;
+  padding: 10px;
   margin-bottom: 10px;
   border-bottom: 1px solid #ddd;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  width: 100%;  /* Make sure the task takes up the available space */
+  max-width: 100%; /* Prevent the task from growing beyond the container */
+  flex-shrink: 0;  /* Ensure the item doesn't shrink */
+  transition: box-shadow 0.3s ease; /* Optional: subtle shadow during drag */
 }
 
+li:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Slight shadow on hover */
+}
+
+/* Ensure task content stays inside the container */
+.task-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Prevent the checkbox from growing */
 li .checkbox-container {
-  width: 40px; /* Fix the width of the checkbox container */
+  width: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;  /* Prevent checkbox container from shrinking */
 }
 
 li input[type="checkbox"] {
-  margin-left: 5px; /* Shift the checkbox to the right slightly */
+  margin-left: 5px;
   padding: 0;
   outline: none;
   box-shadow: none;
-  border-radius: 0; /* Checkbox remains square */
+  border-radius: 0;
 }
 
+/* Subtle box-shadow during checkbox focus */
 li input[type="checkbox"]:focus {
   outline: none;
-  box-shadow: 0 0 0 6px rgba(0, 123, 255, 0.3); /* Circular box-shadow for focus */
-  border-radius: 50%; /* Make the focus ring circular */
+  box-shadow: 0 0 0 6px rgba(0, 123, 255, 0.3);
+  border-radius: 50%;
 }
 
 li span {
@@ -83,6 +126,7 @@ li span {
   cursor: pointer;
 }
 
+/* The delete button (keeps it aligned) */
 li .MuiIconButton-root {
   padding: 8px;
   margin-left: auto;

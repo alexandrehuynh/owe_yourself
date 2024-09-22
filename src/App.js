@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, IconButton, Checkbox, List, ListItem, ListItemText } from '@mui/material';
+import { TextField, IconButton, Checkbox, ListItemText } from '@mui/material';
 import { Delete as DeleteIcon, Save as SaveIcon, AddTask as AddTaskIcon } from '@mui/icons-material';
 import './App.css';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const App = () => {
   const [task, setTask] = useState('');
@@ -20,7 +21,7 @@ const App = () => {
   const addTask = () => {
     if (task.trim()) {
       setTasks([...tasks, { text: task, done: false }]);
-      setTask(''); // Clear the input field after adding the task
+      setTask('');
     }
   };
 
@@ -64,6 +65,15 @@ const App = () => {
     setEditingTask('');
   };
 
+  // Handle drag and drop reordering
+  const handleOnDragEnd = (result) => {
+    if (!result.destination) return;
+    const items = Array.from(tasks);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    setTasks(items);
+  };
+
   return (
     <div className="app">
       <h1>Accountability To-Do List</h1>
@@ -82,49 +92,78 @@ const App = () => {
         </IconButton>
       </div>
 
-      <List>
-        {tasks.map((t, index) => (
-          <ListItem key={index} className={editingIndex === index ? 'edit-mode' : ''} style={{ display: 'flex', alignItems: 'center' }}>
-            <div className="checkbox-container">
-              <Checkbox
-                checked={t.done}
-                onChange={() => toggleTask(index)}
-              />
-            </div>
-            {editingIndex === index ? (
-              <>
-                <TextField
-                  value={editingTask}
-                  onChange={(e) => setEditingTask(e.target.value)}
-                  onKeyDown={(e) => handleEditKeyPress(e, index)} 
-                  fullWidth
-                />
-                <IconButton color="primary" onClick={() => saveEditedTask(index)}>
-                  <SaveIcon />
-                </IconButton>
-              </>
-            ) : (
-              <>
-                <div className="text-container">
-                  <ListItemText
-                    primary={t.text}
-                    style={{ textDecoration: t.done ? 'line-through' : 'none', cursor: 'pointer' }}
-                    onClick={() => startEditingTask(index)}  
-                  />
-                </div>
-                <IconButton
-                  edge="end"
-                  aria-label="delete"
-                  onClick={() => deleteTask(index)}
-                  style={{ marginLeft: 'auto' }}
-                >
-                  <DeleteIcon color="error" />
-                </IconButton>
-              </>
-            )}
-          </ListItem>
-        ))}
-      </List>
+      {/* Wrapping the list with DragDropContext and Droppable */}
+      <DragDropContext onDragEnd={handleOnDragEnd}>
+        <Droppable droppableId="tasks">
+          {(provided) => (
+            <ul
+              className="task-list"
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+            >
+              {tasks.map((t, index) => (
+                <Draggable key={index} draggableId={String(index)} index={index}>
+                {(provided, snapshot) => (
+                  <li
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    className={editingIndex === index ? 'edit-mode' : ''}
+                    style={{
+                      ...provided.draggableProps.style,
+                      display: 'flex',
+                      alignItems: 'center',
+                      cursor: snapshot.isDragging ? 'grabbing' : 'grab',
+                    }}
+                  >
+                    <div className="task-content">
+                      <div className="checkbox-container">
+                        <Checkbox
+                          checked={t.done}
+                          onChange={() => toggleTask(index)}
+                        />
+                      </div>
+                      {editingIndex === index ? (
+                        <>
+                          <TextField
+                            value={editingTask}
+                            onChange={(e) => setEditingTask(e.target.value)}
+                            onKeyDown={(e) => handleEditKeyPress(e, index)}
+                            fullWidth
+                          />
+                          <IconButton color="primary" onClick={() => saveEditedTask(index)}>
+                            <SaveIcon />
+                          </IconButton>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-container">
+                            <ListItemText
+                              primary={t.text}
+                              style={{ textDecoration: t.done ? 'line-through' : 'none', cursor: 'pointer' }}
+                              onClick={() => startEditingTask(index)}
+                            />
+                          </div>
+                          <IconButton
+                            edge="end"
+                            aria-label="delete"
+                            onClick={() => deleteTask(index)}
+                            style={{ marginLeft: 'auto' }}
+                          >
+                            <DeleteIcon color="error" />
+                          </IconButton>
+                        </>
+                      )}
+                    </div>
+                  </li>
+                )}
+              </Draggable>              
+              ))}
+              {provided.placeholder}
+            </ul>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 };
