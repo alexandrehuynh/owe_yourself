@@ -6,6 +6,8 @@ const App = () => {
     const savedTasks = localStorage.getItem('tasks');
     return savedTasks ? JSON.parse(savedTasks) : [];
   });
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editingTask, setEditingTask] = useState('');
 
   // Save tasks to local storage whenever the task list changes
   useEffect(() => {
@@ -24,6 +26,25 @@ const App = () => {
       i === index ? { ...t, done: !t.done } : t
     );
     setTasks(updatedTasks);
+  };
+
+  const deleteTask = (index) => {
+    const updatedTasks = tasks.filter((_, i) => i !== index);
+    setTasks(updatedTasks);
+  };
+
+  const startEditingTask = (index) => {
+    setEditingIndex(index);
+    setEditingTask(tasks[index].text);
+  };
+
+  const saveEditedTask = (index) => {
+    const updatedTasks = tasks.map((t, i) =>
+      i === index ? { ...t, text: editingTask } : t
+    );
+    setTasks(updatedTasks);
+    setEditingIndex(null);
+    setEditingTask('');
   };
 
   return (
@@ -47,9 +68,26 @@ const App = () => {
               checked={t.done}
               onChange={() => toggleTask(index)}
             />
-            <span style={{ textDecoration: t.done ? 'line-through' : 'none' }}>
-              {t.text}
-            </span>
+            {editingIndex === index ? (
+              <>
+                <input
+                  type="text"
+                  value={editingTask}
+                  onChange={(e) => setEditingTask(e.target.value)}
+                />
+                <button onClick={() => saveEditedTask(index)}>Save</button>
+              </>
+            ) : (
+              <>
+                <span
+                  style={{ textDecoration: t.done ? 'line-through' : 'none' }}
+                  onClick={() => startEditingTask(index)}
+                >
+                  {t.text}
+                </span>
+                <button onClick={() => deleteTask(index)}>Delete</button>
+              </>
+            )}
           </li>
         ))}
       </ul>
