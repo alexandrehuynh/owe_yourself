@@ -1,132 +1,89 @@
 body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f0f4f8;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f7f9fc;
   margin: 0;
   padding: 0;
-}
-
-.app {
-  max-width: 500px;
-  margin: 50px auto;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-}
-
-h1 {
-  text-align: center;
-  color: #333;
-  font-size: 1.5rem;
-}
-
-input[type="text"] {
-  width: 80%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  margin-right: 10px;
-  font-size: 1rem;
-}
-
-button {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #2980b9;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-li {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-}
-
-li:last-child {
-  border-bottom: none;
-}
-
-li input[type="checkbox"] {
-  margin-right: 10px;
-}
-
-li span {
-  flex: 1;
-  font-size: 1rem;
-  padding: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-li span:hover {
-  background-color: #f9f9f9;
-}
-
-li.edit-mode span {
-  background-color: #e8f0fe;
-}
-
-li button {
-  background-color: transparent;
-  color: #e74c3c;
-  border: none;
-  cursor: pointer;
-  font-size: 0.9rem;
-  display: none;
-}
-
-li:hover button {
-  display: inline-block;
-}
-
-body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f0f4f8;
-  margin: 0;
-  padding: 0;
+  min-height: 100vh;
 }
 
 .app {
-  max-width: 600px;
-  margin: 50px auto;
-  background-color: white;
+  max-width: 400px;
+  width: 100%;
+  background-color: #ffffff;
   border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 30px 20px;
+  margin: 20px;
 }
 
 h1 {
   text-align: center;
   color: #333;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  margin-bottom: 20px;
 }
 
 .task-input {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 20px;
+}
+
+.task-input .MuiTextField-root {
+  flex-grow: 1;
+}
+
+.task-input .MuiIconButton-root {
+  padding: 8px;
 }
 
 ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
-.edit-mode {
-  background-color: #e8f0fe;
+li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Make sure checkbox and text are separated */
+  padding: 10px 0;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+li .checkbox-container {
+  width: 40px; /* Fix the width of the checkbox container */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+li input[type="checkbox"] {
+  margin-left: 5px; /* Shift the checkbox to the right slightly */
+  padding: 0;
+  outline: none;
+  box-shadow: none;
+  border-radius: 0; /* Checkbox remains square */
+}
+
+li input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 6px rgba(0, 123, 255, 0.3); /* Circular box-shadow for focus */
+  border-radius: 50%; /* Make the focus ring circular */
+}
+
+li span {
+  font-size: 1rem;
+  color: #333;
+  cursor: pointer;
+}
+
+li .MuiIconButton-root {
+  padding: 8px;
+  margin-left: auto;
 }
