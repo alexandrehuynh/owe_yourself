@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import './App.css'; // Import the CSS file
+import { TextField, Button, IconButton, Checkbox, List, ListItem, ListItemText, ListItemSecondaryAction } from '@mui/material';
+import { Delete as DeleteIcon, Save as SaveIcon } from '@mui/icons-material';
+import './App.css';
 
 const App = () => {
   const [task, setTask] = useState('');
@@ -51,44 +53,55 @@ const App = () => {
   return (
     <div className="app">
       <h1>Accountability To-Do List</h1>
-      <div>
-        <input
-          type="text"
+      <div className="task-input">
+        <TextField
+          label="Enter a task"
           value={task}
           onChange={(e) => setTask(e.target.value)}
-          placeholder="Enter a task"
+          fullWidth
+          variant="outlined"
+          style={{ marginRight: '10px' }}
         />
-        <button onClick={addTask}>Add Task</button>
+        <Button variant="contained" color="primary" onClick={addTask}>
+          Add Task
+        </Button>
       </div>
 
-      <ul>
+      <List>
         {tasks.map((t, index) => (
-          <li key={index} className={editingIndex === index ? 'edit-mode' : ''}>
-            <input
-              type="checkbox"
+          <ListItem key={index} className={editingIndex === index ? 'edit-mode' : ''}>
+            <Checkbox
               checked={t.done}
               onChange={() => toggleTask(index)}
             />
             {editingIndex === index ? (
               <>
-                <input
-                  type="text"
+                <TextField
                   value={editingTask}
                   onChange={(e) => setEditingTask(e.target.value)}
+                  fullWidth
                 />
-                <button onClick={() => saveEditedTask(index)}>Save</button>
+                <IconButton color="primary" onClick={() => saveEditedTask(index)}>
+                  <SaveIcon />
+                </IconButton>
               </>
             ) : (
               <>
-                <span onClick={() => startEditingTask(index)}>
-                  {t.text}
-                </span>
-                <button onClick={() => deleteTask(index)}>Delete</button>
+                <ListItemText
+                  primary={t.text}
+                  onClick={() => startEditingTask(index)}
+                  style={{ textDecoration: t.done ? 'line-through' : 'none', cursor: 'pointer' }}
+                />
+                <ListItemSecondaryAction>
+                  <IconButton edge="end" aria-label="delete" onClick={() => deleteTask(index)}>
+                    <DeleteIcon color="error" />
+                  </IconButton>
+                </ListItemSecondaryAction>
               </>
             )}
-          </li>
+          </ListItem>
         ))}
-      </ul>
+      </List>
     </div>
   );
 };
