@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './App.css'; // Import the CSS file
 
 const App = () => {
   const [task, setTask] = useState('');
@@ -62,7 +63,7 @@ const App = () => {
 
       <ul>
         {tasks.map((t, index) => (
-          <li key={index}>
+          <li key={index} className={editingIndex === index ? 'edit-mode' : ''}>
             <input
               type="checkbox"
               checked={t.done}
@@ -79,10 +80,7 @@ const App = () => {
               </>
             ) : (
               <>
-                <span
-                  style={{ textDecoration: t.done ? 'line-through' : 'none' }}
-                  onClick={() => startEditingTask(index)}
-                >
+                <span onClick={() => startEditingTask(index)}>
                   {t.text}
                 </span>
                 <button onClick={() => deleteTask(index)}>Delete</button>
