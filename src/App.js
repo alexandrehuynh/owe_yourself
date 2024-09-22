@@ -20,7 +20,21 @@ const App = () => {
   const addTask = () => {
     if (task.trim()) {
       setTasks([...tasks, { text: task, done: false }]);
-      setTask('');
+      setTask(''); // Clear the input field after adding the task
+    }
+  };
+
+  // Handle "Enter" key press in the input field for adding a task
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      addTask();
+    }
+  };
+
+  // Handle "Enter" key press in the input field for saving an edited task
+  const handleEditKeyPress = (event, index) => {
+    if (event.key === 'Enter') {
+      saveEditedTask(index);
     }
   };
 
@@ -58,6 +72,7 @@ const App = () => {
           label="Enter a task"
           value={task}
           onChange={(e) => setTask(e.target.value)}
+          onKeyDown={handleKeyPress} 
           fullWidth
           variant="outlined"
           style={{ marginRight: '10px' }}
@@ -70,44 +85,44 @@ const App = () => {
       <List>
         {tasks.map((t, index) => (
           <ListItem key={index} className={editingIndex === index ? 'edit-mode' : ''} style={{ display: 'flex', alignItems: 'center' }}>
-          <div className="checkbox-container">
-            <Checkbox
-              checked={t.done}
-              onChange={() => toggleTask(index)}
-              style={{ paddingLeft: '0px' }}
-            />
-          </div>
-          {editingIndex === index ? (
-            <>
-              <TextField
-                value={editingTask}
-                onChange={(e) => setEditingTask(e.target.value)}
-                fullWidth
+            <div className="checkbox-container">
+              <Checkbox
+                checked={t.done}
+                onChange={() => toggleTask(index)}
               />
-              <IconButton color="primary" onClick={() => saveEditedTask(index)}>
-                <SaveIcon />
-              </IconButton>
-            </>
-          ) : (
-            <>
-              <div className="text-container">
-                <ListItemText
-                  primary={t.text}
-                  style={{ textDecoration: t.done ? 'line-through' : 'none', cursor: 'pointer' }}
-                  onClick={() => startEditingTask(index)}  
+            </div>
+            {editingIndex === index ? (
+              <>
+                <TextField
+                  value={editingTask}
+                  onChange={(e) => setEditingTask(e.target.value)}
+                  onKeyDown={(e) => handleEditKeyPress(e, index)} 
+                  fullWidth
                 />
-              </div>
-              <IconButton
-                edge="end"
-                aria-label="delete"
-                onClick={() => deleteTask(index)}
-                style={{ marginLeft: 'auto' }}
-              >
-                <DeleteIcon color="error" />
-              </IconButton>
-            </>
-          )}
-        </ListItem>        
+                <IconButton color="primary" onClick={() => saveEditedTask(index)}>
+                  <SaveIcon />
+                </IconButton>
+              </>
+            ) : (
+              <>
+                <div className="text-container">
+                  <ListItemText
+                    primary={t.text}
+                    style={{ textDecoration: t.done ? 'line-through' : 'none', cursor: 'pointer' }}
+                    onClick={() => startEditingTask(index)}  
+                  />
+                </div>
+                <IconButton
+                  edge="end"
+                  aria-label="delete"
+                  onClick={() => deleteTask(index)}
+                  style={{ marginLeft: 'auto' }}
+                >
+                  <DeleteIcon color="error" />
+                </IconButton>
+              </>
+            )}
+          </ListItem>
         ))}
       </List>
     </div>
