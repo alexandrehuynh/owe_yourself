@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { TextField, Button, Select, MenuItem, Box } from '@mui/material';
+import { useTasks } from '../contexts/TaskContext';
 
-const TaskInput = ({ setTasks }) => {
+const TaskInput = () => {
+  const { tasks, setTasks } = useTasks();
   const [newTask, setNewTask] = useState({ text: '', category: '', priority: '' });
 
   const addTask = () => {
     if (newTask.text.trim()) {
-      setTasks(prevTasks => [...prevTasks, { ...newTask, done: false, streak: 0, lastCompleted: null }]);
+      setTasks([...tasks, { ...newTask, done: false, streak: 0, lastCompleted: null }]);
       setNewTask({ text: '', category: '', priority: '' });
     }
   };

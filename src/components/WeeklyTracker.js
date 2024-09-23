@@ -1,12 +1,23 @@
 import React from 'react';
 import { Box, Typography, Grid, useTheme } from '@mui/material';
 import { LocalFireDepartment as FireIcon } from '@mui/icons-material';
+import { useTasks } from '../contexts/TaskContext';
 
-const WeeklyTracker = ({ tasks }) => {
+const WeeklyTracker = () => {
   const theme = useTheme();
+  const { tasks } = useTasks();
   const [startDate, endDate] = getWeekDates();
   const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
   const today = new Date().getDay();
+
+  if (!tasks || tasks.length === 0) {
+    return (
+      <Box className="weekly-tracker" sx={{ bgcolor: 'background.paper', p: 2, borderRadius: 1 }}>
+        <Typography variant="h6" gutterBottom>Weekly Progress</Typography>
+        <Typography variant="body2">No tasks to track yet.</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box className="weekly-tracker" sx={{ bgcolor: 'background.paper', p: 2, borderRadius: 1 }}>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ListItem, ListItemText, IconButton, Chip, Tooltip, TextField, Select, MenuItem, Typography } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon, Flag as FlagIcon, LocalFireDepartment as FireIcon, Save as SaveIcon } from '@mui/icons-material';
-import CheckBoxAnim from '../utils/CheckBoxAnim';
+import CheckBoxAnim from './CheckBoxAnim';
+import { isPastMidnightPST, isSameDay } from '../utils/dateUtils';
 
 const Task = ({ task, index, updateTask, deleteTask }) => {
   const [editing, setEditing] = useState(false);
@@ -10,6 +11,20 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
   useEffect(() => {
     setEditedTask(task);
   }, [task]);
+
+  useEffect(() => {
+    const checkReset = () => {
+      const now = new Date();
+      if (task.lastCompleted && !isSameDay(now, new Date(task.lastCompleted)) && isPastMidnightPST(now)) {
+        updateTask(index, { done: false });
+      }
+    };
+
+    checkReset();
+    const interval = setInterval(checkReset, 60000); 
+
+    return () => clearInterval(interval);
+  }, [task, index, updateTask]);
 
   const handleEdit = () => setEditing(true);
   
@@ -22,6 +37,28 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
     if (event.key === 'Enter') {
       handleSave();
     }
+  };
+
+  const handleCheckboxChange = () => {
+    const now = new Date();
+    const lastCompleted = task.lastCompleted ? new Date(task.lastCompleted) : null;
+    let newStreak = task.streak || 0;
+
+    if (!task.done) {
+      if (!lastCompleted || !isSameDay(now, lastCompleted)) {
+        newStreak += 1;
+      }
+    } else {
+      if (lastCompleted && isSameDay(now, lastCompleted)) {
+        newStreak = Math.max(newStreak - 1, 0);
+      }
+    }
+
+    updateTask(index, { 
+      done: !task.done, 
+      streak: newStreak,
+      lastCompleted: !task.done ? now.toISOString() : lastCompleted?.toISOString() || null
+    });
   };
 
   const getPriorityColor = (priority) => {
@@ -71,8 +108,8 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
       ) : (
         <>
           <CheckBoxAnim
-            checked={task.streak > 0}
-            onChange={() => updateTask(index, { done: !task.done })}
+            checked={task.done}
+            onChange={handleCheckboxChange}
             streak={task.streak}
           />
           <ListItemText
