@@ -27,7 +27,7 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Container className="app-container">
-        <Paper className="app-content" data-theme={darkMode ? "dark" : "light"}>
+        <Paper className="app-content">
           <h1>I Owe It To Myself</h1>
           <FormControlLabel
             control={<Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />}

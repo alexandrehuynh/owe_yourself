@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
-import { ListItem, ListItemText, IconButton, TextField, Chip, Menu, MenuItem } from '@mui/material';
-import { Delete as DeleteIcon, CheckCircle as DoneIcon, Edit as EditIcon, Flag as FlagIcon, Save as SaveIcon } from '@mui/icons-material';
+import { ListItem, ListItemText, IconButton, Chip, Tooltip, TextField, Select, MenuItem } from '@mui/material';
+import { Delete as DeleteIcon, Edit as EditIcon, Flag as FlagIcon, LocalFireDepartment as FireIcon, Save as SaveIcon } from '@mui/icons-material';
+import CheckBoxAnim from '../utils/CheckBoxAnim';
 
 const Task = ({ task, index, updateTask, deleteTask }) => {
   const [editing, setEditing] = useState(false);
   const [editedTask, setEditedTask] = useState(task);
-  const [anchorEl, setAnchorEl] = useState(null);
 
   const handleEdit = () => setEditing(true);
+  
   const handleSave = () => {
     updateTask(index, editedTask);
     setEditing(false);
   };
-  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
-  const handleMenuClose = () => setAnchorEl(null);
-  const handlePriorityChange = (priority) => {
-    setEditedTask({ ...editedTask, priority });
-    handleMenuClose();
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      handleSave();
+    }
   };
 
   const getPriorityColor = (priority) => {
@@ -29,12 +30,13 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
   };
 
   return (
-    <ListItem className="task-item">
+    <ListItem>
       {editing ? (
         <>
           <TextField
             value={editedTask.text}
             onChange={(e) => setEditedTask({ ...editedTask, text: e.target.value })}
+            onKeyDown={handleKeyDown}
             fullWidth
             variant="standard"
           />
@@ -44,33 +46,46 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
             placeholder="Category"
             variant="standard"
           />
-          <IconButton onClick={handleMenuOpen}>
-            <FlagIcon color={getPriorityColor(editedTask.priority)} />
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
+          <Select
+            value={editedTask.priority}
+            onChange={(e) => setEditedTask({ ...editedTask, priority: e.target.value })}
+            displayEmpty
           >
-            <MenuItem onClick={() => handlePriorityChange('high')}>High</MenuItem>
-            <MenuItem onClick={() => handlePriorityChange('medium')}>Medium</MenuItem>
-            <MenuItem onClick={() => handlePriorityChange('low')}>Low</MenuItem>
-          </Menu>
+            <MenuItem value="">
+              <em>Priority</em>
+            </MenuItem>
+            <MenuItem value="low">Low</MenuItem>
+            <MenuItem value="medium">Medium</MenuItem>
+            <MenuItem value="high">High</MenuItem>
+          </Select>
           <IconButton onClick={handleSave}>
             <SaveIcon />
           </IconButton>
         </>
       ) : (
         <>
-          <IconButton onClick={() => updateTask(index, { ...task, done: !task.done })} color={task.done ? "primary" : "default"}>
-            <DoneIcon />
-          </IconButton>
+          <CheckBoxAnim
+            checked={task.done}
+            onChange={() => updateTask(index, { done: !task.done })}
+          />
           <ListItemText
             primary={task.text}
-            secondary={`Streak: ${task.streak}`}
+            secondary={task.category}
           />
-          {task.category && <Chip label={task.category} size="small" />}
-          <FlagIcon className={`priority-${task.priority}`} />
+          {task.priority && (
+            <Tooltip title={`Priority: ${task.priority}`}>
+              <FlagIcon color={getPriorityColor(task.priority)} />
+            </Tooltip>
+          )}
+          <Tooltip title={`Streak: ${task.streak}`}>
+            <Chip
+              icon={<FireIcon />}
+              label={task.streak}
+              color="primary"
+              size="small"
+              sx={{ ml: 1 }}
+            />
+          </Tooltip>
           <IconButton onClick={handleEdit}>
             <EditIcon />
           </IconButton>

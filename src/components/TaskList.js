@@ -1,12 +1,12 @@
 import React from 'react';
 import { List } from '@mui/material';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Task from './Task';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const TaskList = ({ tasks, setTasks }) => {
-  const updateTask = (index, updatedTask) => {
+  const updateTask = (index, updates) => {
     const newTasks = [...tasks];
-    newTasks[index] = { ...newTasks[index], ...updatedTask };
+    newTasks[index] = { ...newTasks[index], ...updates };
     setTasks(newTasks);
   };
 
@@ -26,7 +26,7 @@ const TaskList = ({ tasks, setTasks }) => {
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="tasks">
         {(provided) => (
-          <List {...provided.droppableProps} ref={provided.innerRef} className="task-list">
+          <List {...provided.droppableProps} ref={provided.innerRef}>
             {tasks.map((task, index) => (
               <Draggable key={index} draggableId={String(index)} index={index}>
                 {(provided) => (
