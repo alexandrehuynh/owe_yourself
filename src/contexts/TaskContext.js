@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { checkAndResetTasks } from '../utils/taskManager';
-import * as dateUtils from '../utils/dateUtils';
+import { resetTasks } from '../utils/taskManager';
+import { addDays, startOfDay, differenceInMilliseconds } from 'date-fns';
+import { getCurrentDateInUserTimezone } from '../utils/timezoneUtils';
 
 const TaskContext = createContext();
 
@@ -9,18 +10,28 @@ export const TaskProvider = ({ children }) => {
     const savedTasks = localStorage.getItem('tasks');
     return savedTasks ? JSON.parse(savedTasks) : [];
   });
-  const [currentDay, setCurrentDay] = useState(dateUtils.getCurrentDayPST());
+  const [currentDay, setCurrentDay] = useState(getCurrentDateInUserTimezone().toISOString().split('T')[0]);
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
   useEffect(() => {
-    const checkReset = () => checkAndResetTasks(tasks, currentDay, setTasks, setCurrentDay);
-    checkReset(); // Check immediately on mount or when dependencies change
-    const interval = setInterval(checkReset, 60000); // Check every minute
-    return () => clearInterval(interval);
-  }, [tasks, currentDay]);
+    const scheduleNextMidnightReset = () => {
+      const now = getCurrentDateInUserTimezone();
+      const tomorrow = addDays(startOfDay(now), 1);
+      const timeUntilMidnight = differenceInMilliseconds(tomorrow, now);
+  
+      setTimeout(() => {
+        setTasks(prevTasks => resetTasks(prevTasks));
+        scheduleNextMidnightReset();
+      }, timeUntilMidnight);
+    };
+  
+    scheduleNextMidnightReset();
+  
+    return () => clearTimeout(scheduleNextMidnightReset);
+  }, []);
 
   const contextValue = {
     tasks,

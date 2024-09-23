@@ -13,21 +13,14 @@ const WeeklyTracker = () => {
   const today = getDayOfWeekPST(new Date());
   const startOfWeek = getStartOfWeekPST(new Date());
 
-  if (!tasks || tasks.length === 0) {
-    return (
-      <Box className="weekly-tracker" sx={{ bgcolor: 'background.paper', p: 2, borderRadius: 1 }}>
-        <Typography variant="h6" gutterBottom>Weekly Progress</Typography>
-        <Typography variant="body2">No tasks to track yet.</Typography>
-      </Box>
-    );
-  }
-
   const isCompletedOnDay = (task, dayIndex) => {
-    if (!task.lastCompleted) return false;
-    const completedDate = new Date(task.lastCompleted);
+    if (!task.completionHistory) return false;
     const dayStart = startOfDay(addDays(startOfWeek, dayIndex));
     const dayEnd = endOfDay(dayStart);
-    return isWithinInterval(completedDate, { start: dayStart, end: dayEnd });
+    return task.completionHistory.some(date => {
+      const completedDate = new Date(date);
+      return isWithinInterval(completedDate, { start: dayStart, end: dayEnd });
+    });
   };
 
   return (

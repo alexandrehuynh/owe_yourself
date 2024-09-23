@@ -1,59 +1,64 @@
-import { getCurrentDayPST, isSameDay, getStartOfWeekPST, isPastMidnightPST } from './dateUtils';
-import { addDays, differenceInDays, startOfDay } from 'date-fns';
+import { isYesterday, isSameDay, startOfWeek } from 'date-fns';
+import { convertToUserTimezone, getCurrentDateInUserTimezone, formatInUserTimezone } from './timezoneUtils';
 
 export const resetTasks = (tasks) => {
-  const now = new Date();
-  const currentDay = getCurrentDayPST();
-  const startOfWeek = getStartOfWeekPST(now);
+    const now = getCurrentDateInUserTimezone();
+    const startOfWeekDate = startOfWeek(now, { weekStartsOn: 1 }); // Start week on Monday
+  
+    return tasks.map(task => {
+      const lastCompleted = task.lastCompleted ? convertToUserTimezone(new Date(task.lastCompleted)) : null;
+      const isCompletedToday = lastCompleted && isSameDay(lastCompleted, now);
+      const isCompletedThisWeek = task.completionHistory.some(date => 
+        isSameDay(convertToUserTimezone(new Date(date)), now) || 
+        (convertToUserTimezone(new Date(date)) > startOfWeekDate && convertToUserTimezone(new Date(date)) <= now)
+      );
+  
+      return {
+        ...task,
+        done: false, // Reset done status every day
+        streak: isCompletedThisWeek ? (isCompletedToday ? task.streak : task.streak + 1) : 0,
+        lastCompleted: null // Reset lastCompleted
+      };
+    });
+  };
 
-  return tasks.map(task => {
-    const lastCompleted = task.lastCompleted ? new Date(task.lastCompleted) : null;
-    const isCompletedToday = lastCompleted && isSameDay(lastCompleted, now);
-    const isCompletedThisWeek = lastCompleted && lastCompleted >= startOfWeek;
-    const daysSinceLastCompletion = lastCompleted ? differenceInDays(startOfDay(now), startOfDay(lastCompleted)) : null;
-
-    return {
-      ...task,
-      done: isCompletedToday,
-      streak: (isCompletedThisWeek && daysSinceLastCompletion <= 1) ? task.streak : 0,
-      lastCompleted: isCompletedToday ? task.lastCompleted : null,
-      completionHistory: task.completionHistory || []
-    };
-  });
-};
-
-export const checkAndResetTasks = (tasks, currentDay, setTasks, setCurrentDay) => {
-  const now = new Date();
-  const newDay = getCurrentDayPST();
-  if (isPastMidnightPST(now) && newDay !== currentDay) {
-    setCurrentDay(newDay);
-    setTasks(resetTasks(tasks));
+export const updateCompletionHistory = (task, completed) => {
+  const today = formatInUserTimezone(getCurrentDateInUserTimezone(), 'yyyy-MM-dd');
+  let updatedHistory = [...(task.completionHistory || [])];
+  
+  if (completed && !updatedHistory.includes(today)) {
+    updatedHistory.push(today);
+  } else if (!completed) {
+    updatedHistory = updatedHistory.filter(date => date !== today);
   }
+
+  return {
+    ...task,
+    completionHistory: updatedHistory,
+    done: completed,
+    lastCompleted: completed ? new Date().toISOString() : task.lastCompleted
+  };
 };
 
 export const updateTaskStreak = (task, completed) => {
-  const now = new Date();
-  const lastCompleted = task.lastCompleted ? new Date(task.lastCompleted) : null;
-  const daysSinceLastCompletion = lastCompleted ? differenceInDays(startOfDay(now), startOfDay(lastCompleted)) : null;
-  const completionHistory = task.completionHistory || [];
+    const now = getCurrentDateInUserTimezone();
+    const lastCompleted = task.lastCompleted ? convertToUserTimezone(new Date(task.lastCompleted)) : null;
+  
+    if (completed) {
+      if (!lastCompleted || !isSameDay(now, lastCompleted)) {
+        return { ...task, streak: task.streak + 1, lastCompleted: now.toISOString() };
+      }
+    } else if (!completed && lastCompleted && isSameDay(now, lastCompleted)) {
+      return { ...task, streak: Math.max(0, task.streak - 1), lastCompleted: null };
+    }
+  
+    return task;
+  };
 
-  if (completed) {
-    const newCompletionHistory = [...completionHistory, now.toISOString()];
-    const isConsecutive = daysSinceLastCompletion === 1 || daysSinceLastCompletion === 0;
-    return {
-      ...task,
-      done: true,
-      streak: isConsecutive ? task.streak + 1 : 1,
-      lastCompleted: now.toISOString(),
-      completionHistory: newCompletionHistory
-    };
-  } else {
-    return {
-      ...task,
-      done: false,
-      streak: 0,
-      lastCompleted: null,
-      completionHistory
-    };
+export const checkAndResetTasks = (tasks, currentDay, setTasks, setCurrentDay) => {
+  const newDay = formatInUserTimezone(getCurrentDateInUserTimezone(), 'yyyy-MM-dd');
+  if (newDay !== currentDay) {
+    setCurrentDay(newDay);
+    setTasks(resetTasks(tasks));
   }
 };

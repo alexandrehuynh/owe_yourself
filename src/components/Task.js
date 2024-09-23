@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { ListItem, ListItemText, IconButton, Chip, Tooltip, TextField, Select, MenuItem, Typography } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon, Flag as FlagIcon, LocalFireDepartment as FireIcon, Save as SaveIcon } from '@mui/icons-material';
 import CheckBoxAnim from './CheckBoxAnim';
-import { updateTaskStreak } from '../utils/taskManager';
-import { isSameDay, isPastMidnightPST } from '../utils/dateUtils';
+import { updateTaskStreak, updateCompletionHistory } from '../utils/taskManager';
+import { isSameDay } from '../utils/dateUtils'
+import { getCurrentDateInUserTimezone, convertToUserTimezone } from '../utils/timezoneUtils';;
 
 const Task = ({ task, index, updateTask, deleteTask }) => {
   const [editing, setEditing] = useState(false);
@@ -15,15 +16,16 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
 
   useEffect(() => {
     const checkReset = () => {
-      const now = new Date();
-      if (task.lastCompleted && !isSameDay(now, new Date(task.lastCompleted)) && isPastMidnightPST(now)) {
-        updateTask(index, { ...task, done: false });
+      const now = getCurrentDateInUserTimezone();
+      const lastCompleted = task.lastCompleted ? convertToUserTimezone(new Date(task.lastCompleted)) : null;
+      if (lastCompleted && !isSameDay(now, lastCompleted)) {
+        updateTask(index, { ...task, done: false, lastCompleted: null });
       }
     };
-
+  
     checkReset();
-    const interval = setInterval(checkReset, 60000); 
-
+    const interval = setInterval(checkReset, 60000); // Check every minute
+  
     return () => clearInterval(interval);
   }, [task, index, updateTask]);
 
@@ -41,8 +43,9 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
   };
 
   const handleCheckboxChange = () => {
-    const updatedTask = updateTaskStreak(task, !task.done);
-    updateTask(index, updatedTask);
+    const updatedTask = updateCompletionHistory(task, !task.done);
+    const streakUpdatedTask = updateTaskStreak(updatedTask, !updatedTask.done);
+    updateTask(index, streakUpdatedTask);
   };
 
   const getPriorityColor = (priority) => {

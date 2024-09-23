@@ -8,7 +8,13 @@ const TaskInput = () => {
 
   const addTask = () => {
     if (newTask.text.trim()) {
-      setTasks([...tasks, { ...newTask, done: false, streak: 0, lastCompleted: null }]);
+      setTasks([...tasks, { 
+        ...newTask, 
+        done: false, 
+        streak: 0, 
+        lastCompleted: null,
+        completionHistory: []
+      }]);
       setNewTask({ text: '', category: '', priority: '' });
     }
   };
