@@ -4,12 +4,16 @@ import { TextField, Button, Select, MenuItem, Box } from '@mui/material';
 const TaskInput = ({ setTasks }) => {
   const [newTask, setNewTask] = useState({ text: '', category: '', priority: '' });
 
-  const addTask = (event) => {
-    if (event.key === 'Enter' || event.type === 'click') {
-      if (newTask.text.trim()) {
-        setTasks(prevTasks => [...prevTasks, { ...newTask, done: false, streak: 0, lastCompleted: null }]);
-        setNewTask({ text: '', category: '', priority: '' });
-      }
+  const addTask = () => {
+    if (newTask.text.trim()) {
+      setTasks(prevTasks => [...prevTasks, { ...newTask, done: false, streak: 0, lastCompleted: null }]);
+      setNewTask({ text: '', category: '', priority: '' });
+    }
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      addTask();
     }
   };
 
@@ -18,7 +22,7 @@ const TaskInput = ({ setTasks }) => {
       <TextField
         value={newTask.text}
         onChange={(e) => setNewTask({ ...newTask, text: e.target.value })}
-        onKeyPress={addTask}
+        onKeyPress={handleKeyPress}
         placeholder="Enter a task"
         variant="outlined"
         sx={{ flexGrow: 1, mr: 1 }}
@@ -26,6 +30,7 @@ const TaskInput = ({ setTasks }) => {
       <TextField
         value={newTask.category}
         onChange={(e) => setNewTask({ ...newTask, category: e.target.value })}
+        onKeyPress={handleKeyPress}
         placeholder="Category (optional)"
         variant="outlined"
         sx={{ mr: 1 }}

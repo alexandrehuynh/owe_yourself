@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ListItem, ListItemText, IconButton, Chip, Tooltip, TextField, Select, MenuItem, Typography } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon, Flag as FlagIcon, LocalFireDepartment as FireIcon, Save as SaveIcon } from '@mui/icons-material';
 import CheckBoxAnim from '../utils/CheckBoxAnim';
@@ -6,6 +6,10 @@ import CheckBoxAnim from '../utils/CheckBoxAnim';
 const Task = ({ task, index, updateTask, deleteTask }) => {
   const [editing, setEditing] = useState(false);
   const [editedTask, setEditedTask] = useState(task);
+
+  useEffect(() => {
+    setEditedTask(task);
+  }, [task]);
 
   const handleEdit = () => setEditing(true);
   
@@ -44,11 +48,12 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
           <TextField
             value={editedTask.category}
             onChange={(e) => setEditedTask({ ...editedTask, category: e.target.value })}
+            onKeyDown={handleKeyDown}
             placeholder="Category"
             variant="standard"
           />
           <Select
-            value={editedTask.priority}
+            value={editedTask.priority || ''}
             onChange={(e) => setEditedTask({ ...editedTask, priority: e.target.value })}
             displayEmpty
           >
