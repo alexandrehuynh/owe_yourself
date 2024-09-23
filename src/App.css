@@ -65,7 +65,7 @@ h1 {
 }
 
 .task-item {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   padding: 15px;
   border-radius: 8px;
   background-color: var(--primary-light);
@@ -146,3 +146,9 @@ body[data-theme="dark"] .day-circle {
 .priority-high { color: var(--error-color); }
 .priority-medium { color: var(--warning-color); }
 .priority-low { color: var(--success-color); }
+
+.MuiButtonBase-root:focus-visible,
+.MuiTextField-root .MuiInputBase-input:focus-visible {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+}

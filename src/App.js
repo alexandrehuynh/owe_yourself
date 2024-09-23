@@ -16,6 +16,13 @@ const App = () => {
   const theme = createTheme({
     palette: {
       mode: darkMode ? 'dark' : 'light',
+      background: {
+        default: darkMode ? '#121212' : '#f7f9fc',
+        paper: darkMode ? '#1e1e1e' : '#ffffff',
+      },
+      text: {
+        primary: darkMode ? '#e0e0e0' : '#333333',
+      },
     },
   });
 

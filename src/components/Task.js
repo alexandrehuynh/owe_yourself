@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ListItem, ListItemText, IconButton, Chip, Tooltip, TextField, Select, MenuItem } from '@mui/material';
+import { ListItem, ListItemText, IconButton, Chip, Tooltip, TextField, Select, MenuItem, Typography } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon, Flag as FlagIcon, LocalFireDepartment as FireIcon, Save as SaveIcon } from '@mui/icons-material';
 import CheckBoxAnim from '../utils/CheckBoxAnim';
 
@@ -30,7 +30,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
   };
 
   return (
-    <ListItem>
+    <ListItem sx={{ mb: 2, bgcolor: 'background.paper', borderRadius: 1, boxShadow: 1 }}>
       {editing ? (
         <>
           <TextField
@@ -39,6 +39,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
             onKeyDown={handleKeyDown}
             fullWidth
             variant="standard"
+            autoFocus
           />
           <TextField
             value={editedTask.category}
@@ -65,11 +66,16 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
       ) : (
         <>
           <CheckBoxAnim
-            checked={task.done}
+            checked={task.streak > 0}
             onChange={() => updateTask(index, { done: !task.done })}
+            streak={task.streak}
           />
           <ListItemText
-            primary={task.text}
+            primary={
+              <Typography variant="body1" style={{ fontWeight: 500 }}>
+                {task.text}
+              </Typography>
+            }
             secondary={task.category}
           />
           {task.priority && (

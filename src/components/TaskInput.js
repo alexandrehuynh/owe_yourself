@@ -34,16 +34,34 @@ const TaskInput = ({ setTasks }) => {
         value={newTask.priority}
         onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
         displayEmpty
-        sx={{ mr: 1 }}
+        renderValue={(selected) => {
+          if (!selected) {
+            return <em>Priority (optional)</em>;
+          }
+          return selected;
+        }}
+        sx={{ mr: 1, minWidth: 120 }}
       >
-        <MenuItem value="">
-          <em>Priority</em>
+        <MenuItem value="" disabled>
+          <em>Priority (optional)</em>
         </MenuItem>
         <MenuItem value="low">Low</MenuItem>
         <MenuItem value="medium">Medium</MenuItem>
         <MenuItem value="high">High</MenuItem>
       </Select>
-      <Button variant="contained" onClick={addTask}>Add</Button>
+      <Button
+        variant="contained"
+        onClick={addTask}
+        sx={{
+          bgcolor: 'primary.main',
+          color: 'white',
+          '&:hover': { bgcolor: 'primary.dark' },
+          px: 3,
+          py: 1
+        }}
+      >
+        ADD
+      </Button>
     </Box>
   );
 };

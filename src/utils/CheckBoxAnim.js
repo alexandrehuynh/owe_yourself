@@ -1,23 +1,24 @@
 import React from 'react';
 import { Checkbox } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { Check, RadioButtonUnchecked } from '@mui/icons-material';
 
-const AnimatedCheckbox = styled(Checkbox)(({ theme }) => ({
-  '& .MuiSvgIcon-root': {
-    transition: 'transform 0.3s ease-in-out, color 0.3s ease-in-out',
-  },
-  '&.Mui-checked .MuiSvgIcon-root': {
-    transform: 'scale(1.2)',
-    color: theme.palette.primary.main,
-  },
-}));
-
-const CheckBoxAnim = ({ checked, onChange }) => {
+const CheckBoxAnim = ({ checked, onChange, streak }) => {
   return (
-    <AnimatedCheckbox
+    <Checkbox
       checked={checked}
       onChange={onChange}
-      color="default"
+      icon={<RadioButtonUnchecked />}
+      checkedIcon={<Check />}
+      sx={{
+        '& .MuiSvgIcon-root': {
+          fontSize: 24,
+          transition: 'all 0.3s',
+        },
+        '&.Mui-checked .MuiSvgIcon-root': {
+          transform: 'scale(1.2)',
+          color: 'primary.main',
+        },
+      }}
     />
   );
 };
