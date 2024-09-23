@@ -3,7 +3,7 @@ import { Box, Typography, Grid, useTheme } from '@mui/material';
 import { LocalFireDepartment as FireIcon } from '@mui/icons-material';
 import { useTasks } from '../contexts/TaskContext';
 import { getStartOfWeekPST, getDayOfWeekPST } from '../utils/dateUtils';
-import { addDays } from 'date-fns';
+import { addDays, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 
 const WeeklyTracker = () => {
   const theme = useTheme();
@@ -22,6 +22,14 @@ const WeeklyTracker = () => {
     );
   }
 
+  const isCompletedOnDay = (task, dayIndex) => {
+    if (!task.lastCompleted) return false;
+    const completedDate = new Date(task.lastCompleted);
+    const dayStart = startOfDay(addDays(startOfWeek, dayIndex));
+    const dayEnd = endOfDay(dayStart);
+    return isWithinInterval(completedDate, { start: dayStart, end: dayEnd });
+  };
+
   return (
     <Box className="weekly-tracker" sx={{ bgcolor: 'background.paper', p: 2, borderRadius: 1 }}>
       <Typography variant="h6" gutterBottom>Weekly Progress</Typography>
@@ -31,7 +39,7 @@ const WeeklyTracker = () => {
           <Typography variant="subtitle1">{task.text}</Typography>
           <Grid container spacing={1}>
             {days.map((day, dayIndex) => {
-              const isCompleted = task.lastCompleted && new Date(task.lastCompleted) >= addDays(startOfWeek, dayIndex) && new Date(task.lastCompleted) < addDays(startOfWeek, dayIndex + 1);
+              const isCompleted = isCompletedOnDay(task, dayIndex);
               return (
                 <Grid item key={dayIndex}>
                   <Box

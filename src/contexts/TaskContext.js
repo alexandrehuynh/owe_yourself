@@ -17,8 +17,8 @@ export const TaskProvider = ({ children }) => {
 
   useEffect(() => {
     const checkReset = () => checkAndResetTasks(tasks, currentDay, setTasks, setCurrentDay);
-    checkReset();
-    const interval = setInterval(checkReset, 60000);
+    checkReset(); // Check immediately on mount or when dependencies change
+    const interval = setInterval(checkReset, 60000); // Check every minute
     return () => clearInterval(interval);
   }, [tasks, currentDay]);
 

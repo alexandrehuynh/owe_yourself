@@ -3,7 +3,7 @@ import { ListItem, ListItemText, IconButton, Chip, Tooltip, TextField, Select, M
 import { Delete as DeleteIcon, Edit as EditIcon, Flag as FlagIcon, LocalFireDepartment as FireIcon, Save as SaveIcon } from '@mui/icons-material';
 import CheckBoxAnim from './CheckBoxAnim';
 import { updateTaskStreak } from '../utils/taskManager';
-import { isPastMidnightPST, isSameDay } from '../utils/dateUtils';
+import { isSameDay, isPastMidnightPST } from '../utils/dateUtils';
 
 const Task = ({ task, index, updateTask, deleteTask }) => {
   const [editing, setEditing] = useState(false);
@@ -17,7 +17,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
     const checkReset = () => {
       const now = new Date();
       if (task.lastCompleted && !isSameDay(now, new Date(task.lastCompleted)) && isPastMidnightPST(now)) {
-        updateTask(index, { done: false });
+        updateTask(index, { ...task, done: false });
       }
     };
 
