@@ -1,99 +1,47 @@
-body {
-  font-family: 'Poppins', sans-serif;
-  background-color: #f7f9fc;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+.app-container {
+  padding: 20px;
 }
 
-/* Center the entire app in the middle of the screen */
-.app {
-  max-width: 400px;
-  width: 100%;
-  background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Outer box shadow */
-  padding: 30px 20px;
-  margin: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Center the tasks list horizontally */
+.app-content {
+  padding: 20px;
+  border-radius: 8px;
 }
 
-/* Center the task input and ensure even spacing */
 .task-input {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.task-list {
+  margin-top: 20px;
+}
+
+.task-item {
   margin-bottom: 10px;
-  width: 100%; /* Ensure the input takes the full width of the box */
+  padding: 10px;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
-.task-input .MuiTextField-root {
-  flex-grow: 1;
-  margin-right: 10px;
+.weekly-tracker {
+  margin-top: 20px;
 }
 
-.task-input .MuiIconButton-root {
-  padding: 8px;
+.task-progress {
+  margin-bottom: 15px;
 }
 
-/* The task list should take the full width but with margins */
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  width: 100%; /* Ensure the tasks list takes up the entire width */
-  margin-right: 20px; /* Add extra margin to the right */
-}
-
-/* Style individual task items */
-li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 0;
-  margin-bottom: 5px;
-  width: 100%;
-  background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Remove the border from the last task */
-li:last-child {
-  border-bottom: none;
-}
-
-/* Prevent the checkbox from growing */
-li .checkbox-container {
-  width: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-/* Styling for buttons */
-li .MuiIconButton-root {
-  padding: 8px;
-  margin-left: 10px;
-}
-
-li input[type="checkbox"] {
-  margin-left: 5px;
-  padding: 0;
-  outline: none;
-  box-shadow: none;
-  border-radius: 0;
-}
-
-/* Subtle focus ring on checkbox */
-li input[type="checkbox"]:focus {
-  outline: none;
-  box-shadow: 0 0 0 6px rgba(0, 123, 255, 0.3); /* Subtle ring */
+.day-circle {
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
+  border: 2px solid;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.day-circle.future {
+  opacity: 0.5;
 }

@@ -1,38 +1,81 @@
-import React from 'react';
-import { ListItem, ListItemText, IconButton, TextField } from '@mui/material';
-import { Delete as DeleteIcon, CheckCircleOutline as DoneIcon, Save as SaveIcon } from '@mui/icons-material';
+import React, { useState } from 'react';
+import { ListItem, ListItemText, IconButton, TextField, Chip, Menu, MenuItem } from '@mui/material';
+import { Delete as DeleteIcon, CheckCircle as DoneIcon, Edit as EditIcon, Flag as FlagIcon, Save as SaveIcon } from '@mui/icons-material';
 
-const Task = ({ task, index, markTaskDone, deleteTask, startEditingTask, saveEditedTask, editingIndex, editingTask, setEditingTask }) => {
+const Task = ({ task, index, updateTask, deleteTask }) => {
+  const [editing, setEditing] = useState(false);
+  const [editedTask, setEditedTask] = useState(task);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleEdit = () => setEditing(true);
+  const handleSave = () => {
+    updateTask(index, editedTask);
+    setEditing(false);
+  };
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+  const handlePriorityChange = (priority) => {
+    setEditedTask({ ...editedTask, priority });
+    handleMenuClose();
+  };
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'high': return 'error';
+      case 'medium': return 'warning';
+      case 'low': return 'success';
+      default: return 'default';
+    }
+  };
+
   return (
-    <ListItem style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-      {editingIndex === index ? (
+    <ListItem className="task-item">
+      {editing ? (
         <>
-          {/* Display input field for editing */}
           <TextField
-            value={editingTask}
-            onChange={(e) => setEditingTask(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') saveEditedTask(index); }}
+            value={editedTask.text}
+            onChange={(e) => setEditedTask({ ...editedTask, text: e.target.value })}
             fullWidth
-            autoFocus
+            variant="standard"
           />
-          <IconButton edge="end" aria-label="save" onClick={() => saveEditedTask(index)}>
-            <SaveIcon color="primary" />
+          <TextField
+            value={editedTask.category}
+            onChange={(e) => setEditedTask({ ...editedTask, category: e.target.value })}
+            placeholder="Category"
+            variant="standard"
+          />
+          <IconButton onClick={handleMenuOpen}>
+            <FlagIcon color={getPriorityColor(editedTask.priority)} />
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+          >
+            <MenuItem onClick={() => handlePriorityChange('high')}>High</MenuItem>
+            <MenuItem onClick={() => handlePriorityChange('medium')}>Medium</MenuItem>
+            <MenuItem onClick={() => handlePriorityChange('low')}>Low</MenuItem>
+          </Menu>
+          <IconButton onClick={handleSave}>
+            <SaveIcon />
           </IconButton>
         </>
       ) : (
         <>
-          <div style={{ flexGrow: 1 }}>
-            <ListItemText
-              primary={`${task.text} (Streak: ${task.streak !== null && task.streak !== undefined ? task.streak : 0})`}
-              onClick={() => startEditingTask(index)}
-              style={{ cursor: 'pointer' }}
-            />
-          </div>
-          <IconButton edge="end" aria-label="done" onClick={() => markTaskDone(index)}>
-            <DoneIcon color="primary" />
+          <IconButton onClick={() => updateTask(index, { ...task, done: !task.done })} color={task.done ? "primary" : "default"}>
+            <DoneIcon />
           </IconButton>
-          <IconButton edge="end" aria-label="delete" onClick={() => deleteTask(index)}>
-            <DeleteIcon color="error" />
+          <ListItemText
+            primary={task.text}
+            secondary={`Streak: ${task.streak}`}
+          />
+          {task.category && <Chip label={task.category} size="small" />}
+          <FlagIcon color={getPriorityColor(task.priority)} />
+          <IconButton onClick={handleEdit}>
+            <EditIcon />
+          </IconButton>
+          <IconButton onClick={() => deleteTask(index)}>
+            <DeleteIcon />
           </IconButton>
         </>
       )}
