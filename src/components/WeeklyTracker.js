@@ -2,13 +2,16 @@ import React from 'react';
 import { Box, Typography, Grid, useTheme } from '@mui/material';
 import { LocalFireDepartment as FireIcon } from '@mui/icons-material';
 import { useTasks } from '../contexts/TaskContext';
+import { getStartOfWeekPST, getDayOfWeekPST } from '../utils/dateUtils';
+import { addDays } from 'date-fns';
 
 const WeeklyTracker = () => {
   const theme = useTheme();
   const { tasks } = useTasks();
   const [startDate, endDate] = getWeekDates();
   const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-  const today = new Date().getDay();
+  const today = getDayOfWeekPST(new Date());
+  const startOfWeek = getStartOfWeekPST(new Date());
 
   if (!tasks || tasks.length === 0) {
     return (
@@ -27,30 +30,33 @@ const WeeklyTracker = () => {
         <Box key={taskIndex} mb={2}>
           <Typography variant="subtitle1">{task.text}</Typography>
           <Grid container spacing={1}>
-            {days.map((day, dayIndex) => (
-              <Grid item key={dayIndex}>
-                <Box
-                  sx={{
-                    width: 30,
-                    height: 30,
-                    borderRadius: '50%',
-                    border: `2px solid ${theme.palette.primary.main}`,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    opacity: dayIndex > today ? 0.5 : 1,
-                    color: theme.palette.text.primary,
-                    bgcolor: theme.palette.background.default,
-                  }}
-                >
-                  {dayIndex <= today && task.streak > dayIndex ? (
-                    <FireIcon color="primary" fontSize="small" />
-                  ) : (
-                    day
-                  )}
-                </Box>
-              </Grid>
-            ))}
+            {days.map((day, dayIndex) => {
+              const isCompleted = task.lastCompleted && new Date(task.lastCompleted) >= addDays(startOfWeek, dayIndex) && new Date(task.lastCompleted) < addDays(startOfWeek, dayIndex + 1);
+              return (
+                <Grid item key={dayIndex}>
+                  <Box
+                    sx={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: '50%',
+                      border: `2px solid ${theme.palette.primary.main}`,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      opacity: dayIndex > today ? 0.5 : 1,
+                      color: theme.palette.text.primary,
+                      bgcolor: theme.palette.background.default,
+                    }}
+                  >
+                    {isCompleted ? (
+                      <FireIcon color="primary" fontSize="small" />
+                    ) : (
+                      day
+                    )}
+                  </Box>
+                </Grid>
+              );
+            })}
           </Grid>
         </Box>
       ))}
@@ -60,8 +66,8 @@ const WeeklyTracker = () => {
 
 const getWeekDates = () => {
   const now = new Date();
-  const start = new Date(now.setDate(now.getDate() - now.getDay()));
-  const end = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+  const start = getStartOfWeekPST(now);
+  const end = addDays(start, 6);
   return [start.toLocaleDateString(), end.toLocaleDateString()];
 };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ListItem, ListItemText, IconButton, Chip, Tooltip, TextField, Select, MenuItem, Typography } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon, Flag as FlagIcon, LocalFireDepartment as FireIcon, Save as SaveIcon } from '@mui/icons-material';
 import CheckBoxAnim from './CheckBoxAnim';
+import { updateTaskStreak } from '../utils/taskManager';
 import { isPastMidnightPST, isSameDay } from '../utils/dateUtils';
 
 const Task = ({ task, index, updateTask, deleteTask }) => {
@@ -40,25 +41,8 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
   };
 
   const handleCheckboxChange = () => {
-    const now = new Date();
-    const lastCompleted = task.lastCompleted ? new Date(task.lastCompleted) : null;
-    let newStreak = task.streak || 0;
-
-    if (!task.done) {
-      if (!lastCompleted || !isSameDay(now, lastCompleted)) {
-        newStreak += 1;
-      }
-    } else {
-      if (lastCompleted && isSameDay(now, lastCompleted)) {
-        newStreak = Math.max(newStreak - 1, 0);
-      }
-    }
-
-    updateTask(index, { 
-      done: !task.done, 
-      streak: newStreak,
-      lastCompleted: !task.done ? now.toISOString() : lastCompleted?.toISOString() || null
-    });
+    const updatedTask = updateTaskStreak(task, !task.done);
+    updateTask(index, updatedTask);
   };
 
   const getPriorityColor = (priority) => {
