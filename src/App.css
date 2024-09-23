@@ -1,16 +1,63 @@
+:root {
+  --background-light: #f7f9fc;
+  --background-dark: #1a1a1a;
+  --primary-light: #f2f5fa;
+  --primary-dark: #2a2a2a;
+  --hover-light: #e4eaf0;
+  --hover-dark: #3a3a3a;
+  --text-light: #333333;
+  --text-dark: #e0e0e0;
+  --accent-color: #4a90e2;
+  --error-color: #e57373;
+  --warning-color: #ffb74d;
+  --success-color: #81c784;
+}
+
+body {
+  background-color: var(--background-light);
+  color: var(--text-light);
+  font-family: 'Poppins', sans-serif;
+  transition: background-color 0.3s, color 0.3s;
+}
+
 .app-container {
   padding: 20px;
 }
 
 .app-content {
-  padding: 20px;
-  border-radius: 8px;
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s;
+}
+
+h1 {
+  color: var(--accent-color);
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .task-input {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.task-input .MuiTextField-root,
+.task-input .MuiSelect-root,
+.task-input .MuiButton-root {
+  background-color: var(--primary-light);
+  transition: background-color 0.3s;
+}
+
+.task-input .MuiButton-root {
+  background-color: var(--accent-color);
+  color: #ffffff;
+}
+
+.task-input .MuiButton-root:hover {
+  background-color: #3a7bc8;
 }
 
 .task-list {
@@ -19,29 +66,83 @@
 
 .task-item {
   margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 4px;
-  background-color: rgba(0, 0, 0, 0.03);
+  padding: 15px;
+  border-radius: 8px;
+  background-color: var(--primary-light);
+  transition: all 0.3s ease;
+}
+
+.task-item:hover {
+  background-color: var(--hover-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .weekly-tracker {
-  margin-top: 20px;
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s;
 }
 
 .task-progress {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .day-circle {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 2px solid;
+  border: 2px solid var(--accent-color);
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-light);
+  background-color: var(--primary-light);
+  transition: all 0.3s;
 }
 
 .day-circle.future {
   opacity: 0.5;
 }
+
+/* Dark mode styles */
+body[data-theme="dark"] {
+  background-color: var(--background-dark);
+  color: var(--text-dark);
+}
+
+body[data-theme="dark"] .app-content {
+  background-color: var(--primary-dark);
+}
+
+body[data-theme="dark"] .task-input .MuiTextField-root,
+body[data-theme="dark"] .task-input .MuiSelect-root {
+  background-color: var(--hover-dark);
+}
+
+body[data-theme="dark"] .task-item {
+  background-color: var(--primary-dark);
+}
+
+body[data-theme="dark"] .task-item:hover {
+  background-color: var(--hover-dark);
+}
+
+body[data-theme="dark"] .weekly-tracker {
+  background-color: var(--primary-dark);
+}
+
+body[data-theme="dark"] .day-circle {
+  color: var(--text-dark);
+  background-color: var(--primary-dark);
+  border-color: var(--accent-color);
+}
+
+/* Priority colors */
+.priority-high { color: var(--error-color); }
+.priority-medium { color: var(--warning-color); }
+.priority-low { color: var(--success-color); }

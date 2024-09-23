@@ -70,7 +70,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
             secondary={`Streak: ${task.streak}`}
           />
           {task.category && <Chip label={task.category} size="small" />}
-          <FlagIcon color={getPriorityColor(task.priority)} />
+          <FlagIcon className={`priority-${task.priority}`} />
           <IconButton onClick={handleEdit}>
             <EditIcon />
           </IconButton>
