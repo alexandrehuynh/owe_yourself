@@ -10,19 +10,20 @@ import {
   isWithinIntervalUTC 
 } from '../utils/dateUtils';
 
-const WeeklyTracker = () => {
+const WeeklyTracker = ({ testDate }) => {
   const theme = useTheme();
   const { tasks } = useTasks();
-  const startOfWeek = getStartOfWeekUTC(new Date(), 0); // 0 for Sunday start
-  const today = getDayOfWeekUTC(new Date());
+  const currentDate = testDate || new Date();
+  const startOfWeek = getStartOfWeekUTC(currentDate, 0); // 0 for Sunday start
+  const today = getDayOfWeekUTC(currentDate);
 
   const isCompletedOnDay = (task, dayIndex) => {
     if (!task.completionHistory) return false;
-    const dayStart = addDaysUTC(startOfWeek, dayIndex);
-    const dayEnd = addDaysUTC(dayStart, 1);
-    return task.completionHistory.some(date => 
-      isWithinIntervalUTC(new Date(date), { start: dayStart, end: dayEnd })
-    );
+    const dayDate = new Date(addDaysUTC(startOfWeek, dayIndex));
+    return task.completionHistory.some(date => {
+      const completionDate = new Date(date);
+      return completionDate.toDateString() === dayDate.toDateString();
+    });
   };
 
   return (
@@ -48,7 +49,7 @@ const WeeklyTracker = () => {
                       display: 'flex',
                       justifyContent: 'center',
                       alignItems: 'center',
-                      opacity: dayIndex > today ? 0.5 : 1,
+                      opacity: dayIndex <= today ? 1 : 0.5,
                       color: theme.palette.text.primary,
                       bgcolor: isCompleted ? theme.palette.primary.main : theme.palette.background.default,
                     }}

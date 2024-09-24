@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline, Container, Grid, Paper, Switch, FormControlLabel } from '@mui/material';
+import { CssBaseline, Container, Grid, Paper, Switch, FormControlLabel, TextField, Button, Box } from '@mui/material';
 import TaskInput from './components/TaskInput';
 import TaskList from './components/TaskList';
 import WeeklyTracker from './components/WeeklyTracker';
@@ -9,6 +9,8 @@ import './App.css';
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(false);
+  const [testDate, setTestDate] = useState(null);
+  const [testDateInput, setTestDateInput] = useState('');
 
   const theme = createTheme({
     palette: {
@@ -23,6 +25,10 @@ const App = () => {
     },
   });
 
+  const handleSetTestDate = () => {
+    setTestDate(new Date(testDateInput));
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -30,17 +36,34 @@ const App = () => {
         <Container className="app-container">
           <Paper className="app-content">
             <h1>I Owe It To Myself</h1>
-            <FormControlLabel
-              control={<Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />}
-              label="Dark Mode"
-            />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <FormControlLabel
+                control={<Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />}
+                label="Dark Mode"
+              />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <TextField
+                  label="Test Date"
+                  type="date"
+                  value={testDateInput}
+                  onChange={(e) => setTestDateInput(e.target.value)}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  size="small"
+                />
+                <Button variant="contained" onClick={handleSetTestDate} size="small">
+                  Set Test Date
+                </Button>
+              </Box>
+            </Box>
             <TaskInput />
             <Grid container spacing={2}>
               <Grid item xs={12} md={8}>
                 <TaskList />
               </Grid>
               <Grid item xs={12} md={4}>
-                <WeeklyTracker />
+                <WeeklyTracker testDate={testDate} />
               </Grid>
             </Grid>
           </Paper>
