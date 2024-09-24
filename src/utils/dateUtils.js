@@ -50,10 +50,10 @@ export const getNextMidnightUTC = () => {
   return formatInTimeZone(userTomorrow, userTimezone, "yyyy-MM-dd'T'00:00:00.000'Z'");
 };
 
-export const getStartOfWeekUTC = (date) => {
+export const getStartOfWeekUTC = (date, startDay = 0) => {
   const userTimezone = getUserTimezone();
   const userDate = utcToUserTimezone(date);
-  const startOfWeekUser = startOfWeek(userDate, { weekStartsOn: 1 });
+  const startOfWeekUser = startOfWeek(userDate, { weekStartsOn: startDay });
   return formatInTimeZone(startOfWeekUser, userTimezone, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 };
 

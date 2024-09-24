@@ -13,7 +13,7 @@ import {
 const WeeklyTracker = () => {
   const theme = useTheme();
   const { tasks } = useTasks();
-  const startOfWeek = getStartOfWeekUTC(new Date());
+  const startOfWeek = getStartOfWeekUTC(new Date(), 0); // 0 for Sunday start
   const today = getDayOfWeekUTC(new Date());
 
   const isCompletedOnDay = (task, dayIndex) => {
@@ -35,7 +35,7 @@ const WeeklyTracker = () => {
         <Box key={taskIndex} mb={2}>
           <Typography variant="subtitle1">{task.text}</Typography>
           <Grid container spacing={1}>
-            {[0, 1, 2, 3, 4, 5, 6].map((dayIndex) => {
+            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, dayIndex) => {
               const isCompleted = isCompletedOnDay(task, dayIndex);
               return (
                 <Grid item key={dayIndex}>
@@ -56,7 +56,7 @@ const WeeklyTracker = () => {
                     {isCompleted ? (
                       <FireIcon sx={{ color: theme.palette.background.default }} fontSize="small" />
                     ) : (
-                      ['S', 'M', 'T', 'W', 'T', 'F', 'S'][dayIndex]
+                      day
                     )}
                   </Box>
                 </Grid>
