@@ -11,7 +11,7 @@ import {
 } from '../utils/dateUtils';
 
 const WeeklyTracker = () => {
-  const theme = useTheme(); // Use useTheme to access Material-UI theme
+  const theme = useTheme();
   const { tasks } = useTasks();
   const startOfWeek = getStartOfWeekUTC(new Date());
   const today = getDayOfWeekUTC(new Date());
@@ -35,7 +35,7 @@ const WeeklyTracker = () => {
         <Box key={taskIndex} mb={2}>
           <Typography variant="subtitle1">{task.text}</Typography>
           <Grid container spacing={1}>
-            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, dayIndex) => {
+            {[0, 1, 2, 3, 4, 5, 6].map((dayIndex) => {
               const isCompleted = isCompletedOnDay(task, dayIndex);
               return (
                 <Grid item key={dayIndex}>
@@ -44,19 +44,19 @@ const WeeklyTracker = () => {
                       width: 30,
                       height: 30,
                       borderRadius: '50%',
-                      border: `2px solid ${theme.palette.primary.main}`, // Use theme
+                      border: `2px solid ${theme.palette.primary.main}`,
                       display: 'flex',
                       justifyContent: 'center',
                       alignItems: 'center',
                       opacity: dayIndex > today ? 0.5 : 1,
-                      color: theme.palette.text.primary, // Use theme
-                      bgcolor: theme.palette.background.default, // Use theme
+                      color: theme.palette.text.primary,
+                      bgcolor: isCompleted ? theme.palette.primary.main : theme.palette.background.default,
                     }}
                   >
                     {isCompleted ? (
-                      <FireIcon color="primary" fontSize="small" />
+                      <FireIcon sx={{ color: theme.palette.background.default }} fontSize="small" />
                     ) : (
-                      day
+                      ['S', 'M', 'T', 'W', 'T', 'F', 'S'][dayIndex]
                     )}
                   </Box>
                 </Grid>

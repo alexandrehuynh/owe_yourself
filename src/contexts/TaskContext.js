@@ -77,16 +77,31 @@ export const TaskProvider = ({ children }) => {
   };
 
   const updateTaskStreak = (task, completed) => {
+    const today = getCurrentUTCDate();
+    const lastCompleted = task.lastCompleted ? new Date(task.lastCompleted) : null;
+    
     if (completed) {
-      if (!task.lastCompleted || !isUTCDateTodayInUserTimezone(task.lastCompleted)) {
-        return task.streak + 1; // Increment streak if the task wasn't already completed today
+      if (!lastCompleted) {
+        return 1; // First time completion
       }
-    } else if (task.lastCompleted && isUTCDateTodayInUserTimezone(task.lastCompleted)) {
-      return Math.max(0, task.streak - 1); // Decrease streak if the task is marked as not done
+      const oneDayInMs = 24 * 60 * 60 * 1000;
+      const daysSinceLastCompleted = Math.floor((today - lastCompleted) / oneDayInMs);
+      
+      if (daysSinceLastCompleted === 0) {
+        return task.streak; // Already completed today
+      } else if (daysSinceLastCompleted === 1) {
+        return task.streak + 1; // Completed on consecutive day
+      } else {
+        return 1; // Streak broken, start new streak
+      }
+    } else {
+      // If unmarking today's completion
+      if (lastCompleted && isUTCDateTodayInUserTimezone(lastCompleted)) {
+        return Math.max(0, task.streak - 1);
+      }
+      return task.streak; // No change if unmarking a previous day
     }
-    return task.streak; // Return current streak if no changes
   };
-  
 
   const updateTask = (taskId, updates) => {
     setTasks(prevTasks => 
@@ -94,7 +109,8 @@ export const TaskProvider = ({ children }) => {
         if (task.id === taskId) {
           const updatedTask = { ...task, ...updates };
           if (updates.done !== undefined) {
-            updatedTask.lastCompleted = updates.done ? getCurrentUTCDate() : null;
+            const currentDate = getCurrentUTCDate();
+            updatedTask.lastCompleted = updates.done ? currentDate : updatedTask.lastCompleted;
             updatedTask.completionHistory = updateCompletionHistory(updatedTask, updates.done);
             updatedTask.streak = updateTaskStreak(updatedTask, updates.done);
           }
@@ -103,7 +119,7 @@ export const TaskProvider = ({ children }) => {
         return task;
       })
     );
-  };  
+  };
 
   const addTask = (newTask) => {
     setTasks(prevTasks => [...prevTasks, { 
