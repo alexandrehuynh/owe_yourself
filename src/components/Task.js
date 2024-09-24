@@ -47,6 +47,8 @@ const Task = ({ task }) => {
     }
   };
 
+  const showLastCompleted = task.done || task.streak > 0;
+
   return (
     <ListItem sx={{ mb: 2, bgcolor: 'background.paper', borderRadius: 1, boxShadow: 1 }}>
       <CheckBoxAnim
@@ -96,7 +98,7 @@ const Task = ({ task }) => {
         secondary={
           <>
             {task.category}
-            {task.lastCompleted && (
+            {showLastCompleted && task.lastCompleted && (
               <span>
                 {" - Last completed: "}
                 {formatDateForUser(task.lastCompleted, 'PPP')}
