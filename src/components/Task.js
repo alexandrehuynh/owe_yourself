@@ -1,51 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { ListItem, ListItemText, IconButton, Chip, Tooltip, TextField, Select, MenuItem, Typography } from '@mui/material';
-import { Delete as DeleteIcon, Edit as EditIcon, Flag as FlagIcon, LocalFireDepartment as FireIcon, Save as SaveIcon } from '@mui/icons-material';
+import React, { useState } from 'react';
+import { ListItem, ListItemText, IconButton, Chip, Tooltip, Typography, TextField, Select, MenuItem, Box } from '@mui/material';
+import { Delete as DeleteIcon, Edit as EditIcon, Flag as FlagIcon, LocalFireDepartment as FireIcon, Save as SaveIcon, Close as CloseIcon } from '@mui/icons-material';
 import CheckBoxAnim from './CheckBoxAnim';
-import { updateTaskStreak, updateCompletionHistory } from '../utils/taskManager';
-import { isSameDay } from '../utils/dateUtils'
-import { getCurrentDateInUserTimezone, convertToUserTimezone } from '../utils/timezoneUtils';;
+import { formatDateForUser, isUTCDateTodayInUserTimezone } from '../utils/dateUtils';
+import { useTasks } from '../contexts/TaskContext';
 
-const Task = ({ task, index, updateTask, deleteTask }) => {
+const Task = ({ task }) => {
+  const { updateTask, deleteTask } = useTasks();
   const [editing, setEditing] = useState(false);
-  const [editedTask, setEditedTask] = useState(task);
+  const [editedTaskText, setEditedTaskText] = useState(task.text);
+  const [editedCategory, setEditedCategory] = useState(task.category || '');
+  const [editedPriority, setEditedPriority] = useState(task.priority || '');
 
-  useEffect(() => {
-    setEditedTask(task);
-  }, [task]);
+  const handleToggle = () => {
+    updateTask(task.id, { done: !task.done });
+  };
 
-  useEffect(() => {
-    const checkReset = () => {
-      const now = getCurrentDateInUserTimezone();
-      const lastCompleted = task.lastCompleted ? convertToUserTimezone(new Date(task.lastCompleted)) : null;
-      if (lastCompleted && !isSameDay(now, lastCompleted)) {
-        updateTask(index, { ...task, done: false, lastCompleted: null });
-      }
-    };
-  
-    checkReset();
-    const interval = setInterval(checkReset, 60000); // Check every minute
-  
-    return () => clearInterval(interval);
-  }, [task, index, updateTask]);
-
-  const handleEdit = () => setEditing(true);
-  
-  const handleSave = () => {
-    updateTask(index, editedTask);
+  const handleEdit = () => {
+    updateTask(task.id, { text: editedTaskText, category: editedCategory, priority: editedPriority });
     setEditing(false);
+  };
+
+  const handleStartEdit = () => {
+    setEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setEditing(false);
+    setEditedTaskText(task.text);
+    setEditedCategory(task.category || '');
+    setEditedPriority(task.priority || '');
   };
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
-      handleSave();
+      handleEdit();
     }
-  };
-
-  const handleCheckboxChange = () => {
-    const updatedTask = updateCompletionHistory(task, !task.done);
-    const streakUpdatedTask = updateTaskStreak(updatedTask, !updatedTask.done);
-    updateTask(index, streakUpdatedTask);
   };
 
   const getPriorityColor = (priority) => {
@@ -59,72 +49,92 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
 
   return (
     <ListItem sx={{ mb: 2, bgcolor: 'background.paper', borderRadius: 1, boxShadow: 1 }}>
+      <CheckBoxAnim
+        checked={task.done}
+        onChange={handleToggle}
+        streak={task.streak}
+      />
+      <ListItemText
+        primary={
+          editing ? (
+            <Box display="flex" gap={1} alignItems="center">
+              <TextField
+                value={editedTaskText}
+                onChange={(e) => setEditedTaskText(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Task name"
+                size="small"
+                sx={{ flex: 2 }}
+              />
+              <TextField
+                value={editedCategory}
+                onChange={(e) => setEditedCategory(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Category (optional)"
+                size="small"
+                sx={{ flex: 1 }}
+              />
+              <Select
+                value={editedPriority}
+                onChange={(e) => setEditedPriority(e.target.value)}
+                size="small"
+                sx={{ flex: 1 }}
+                displayEmpty
+              >
+                <MenuItem value=""><em>Priority (optional)</em></MenuItem>
+                <MenuItem value="low">Low</MenuItem>
+                <MenuItem value="medium">Medium</MenuItem>
+                <MenuItem value="high">High</MenuItem>
+              </Select>
+            </Box>
+          ) : (
+            <Typography variant="body1" style={{ fontWeight: 500 }}>
+              {task.text}
+            </Typography>
+          )
+        }
+        secondary={
+          <>
+            {task.category}
+            {task.lastCompleted && (
+              <span>
+                {" - Last completed: "}
+                {formatDateForUser(task.lastCompleted, 'PPP')}
+                {isUTCDateTodayInUserTimezone(task.lastCompleted) && " (Today)"}
+              </span>
+            )}
+          </>
+        }
+      />
+      {task.priority && (
+        <Tooltip title={`Priority: ${task.priority}`}>
+          <FlagIcon color={getPriorityColor(task.priority)} />
+        </Tooltip>
+      )}
+      <Tooltip title={`Streak: ${task.streak}`}>
+        <Chip
+          icon={<FireIcon />}
+          label={task.streak}
+          color="primary"
+          size="small"
+          sx={{ ml: 1 }}
+        />
+      </Tooltip>
       {editing ? (
         <>
-          <TextField
-            value={editedTask.text}
-            onChange={(e) => setEditedTask({ ...editedTask, text: e.target.value })}
-            onKeyDown={handleKeyDown}
-            fullWidth
-            variant="standard"
-            autoFocus
-          />
-          <TextField
-            value={editedTask.category}
-            onChange={(e) => setEditedTask({ ...editedTask, category: e.target.value })}
-            onKeyDown={handleKeyDown}
-            placeholder="Category"
-            variant="standard"
-          />
-          <Select
-            value={editedTask.priority || ''}
-            onChange={(e) => setEditedTask({ ...editedTask, priority: e.target.value })}
-            displayEmpty
-          >
-            <MenuItem value="">
-              <em>Priority</em>
-            </MenuItem>
-            <MenuItem value="low">Low</MenuItem>
-            <MenuItem value="medium">Medium</MenuItem>
-            <MenuItem value="high">High</MenuItem>
-          </Select>
-          <IconButton onClick={handleSave}>
+          <IconButton onClick={handleEdit}>
             <SaveIcon />
+          </IconButton>
+          <IconButton onClick={handleCancelEdit}>
+            <CloseIcon />
           </IconButton>
         </>
       ) : (
         <>
-          <CheckBoxAnim
-            checked={task.done}
-            onChange={handleCheckboxChange}
-            streak={task.streak}
-          />
-          <ListItemText
-            primary={
-              <Typography variant="body1" style={{ fontWeight: 500 }}>
-                {task.text}
-              </Typography>
-            }
-            secondary={task.category}
-          />
-          {task.priority && (
-            <Tooltip title={`Priority: ${task.priority}`}>
-              <FlagIcon color={getPriorityColor(task.priority)} />
-            </Tooltip>
-          )}
-          <Tooltip title={`Streak: ${task.streak}`}>
-            <Chip
-              icon={<FireIcon />}
-              label={task.streak}
-              color="primary"
-              size="small"
-              sx={{ ml: 1 }}
-            />
-          </Tooltip>
-          <IconButton onClick={handleEdit}>
+          <IconButton onClick={handleStartEdit}>
             <EditIcon />
           </IconButton>
-          <IconButton onClick={() => deleteTask(index)}>
+          <IconButton onClick={() => deleteTask(task.id)}>
             <DeleteIcon />
           </IconButton>
         </>

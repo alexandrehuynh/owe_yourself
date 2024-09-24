@@ -3,25 +3,19 @@ import { TextField, Button, Select, MenuItem, Box } from '@mui/material';
 import { useTasks } from '../contexts/TaskContext';
 
 const TaskInput = () => {
-  const { tasks, setTasks } = useTasks();
+  const { addTask } = useTasks();
   const [newTask, setNewTask] = useState({ text: '', category: '', priority: '' });
 
-  const addTask = () => {
+  const handleAddTask = () => {
     if (newTask.text.trim()) {
-      setTasks([...tasks, { 
-        ...newTask, 
-        done: false, 
-        streak: 0, 
-        lastCompleted: null,
-        completionHistory: []
-      }]);
+      addTask(newTask);
       setNewTask({ text: '', category: '', priority: '' });
     }
   };
 
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {
-      addTask();
+      handleAddTask();
     }
   };
 
@@ -64,7 +58,7 @@ const TaskInput = () => {
       </Select>
       <Button
         variant="contained"
-        onClick={addTask}
+        onClick={handleAddTask}
         sx={{
           bgcolor: 'primary.main',
           color: 'white',

@@ -7,25 +7,6 @@ import { useTasks } from '../contexts/TaskContext';
 const TaskList = () => {
   const { tasks, setTasks } = useTasks();
 
-  const updateTask = (index, updates) => {
-    const newTasks = [...tasks];
-    const updatedTask = { ...newTasks[index], ...updates };
-    
-    if (updates.done && !newTasks[index].done) {
-      updatedTask.streak = (updatedTask.streak || 0) + 1;
-      updatedTask.lastCompleted = new Date().toISOString();
-    } else if (!updates.done && newTasks[index].done) {
-      updatedTask.streak = Math.max((updatedTask.streak || 0) - 1, 0);
-    }
-    
-    newTasks[index] = updatedTask;
-    setTasks(newTasks);
-  };
-
-  const deleteTask = (index) => {
-    setTasks(tasks.filter((_, i) => i !== index));
-  };
-
   const onDragEnd = (result) => {
     if (!result.destination) return;
     const items = Array.from(tasks);
@@ -48,19 +29,14 @@ const TaskList = () => {
         {(provided) => (
           <List {...provided.droppableProps} ref={provided.innerRef} sx={{ mt: 3 }}>
             {tasks.map((task, index) => (
-              <Draggable key={index} draggableId={String(index)} index={index}>
+              <Draggable key={task.id} draggableId={String(task.id)} index={index}>
                 {(provided) => (
                   <div
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
                   >
-                    <Task
-                      task={task}
-                      index={index}
-                      updateTask={updateTask}
-                      deleteTask={deleteTask}
-                    />
+                    <Task task={task} />
                   </div>
                 )}
               </Draggable>
