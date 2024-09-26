@@ -14,18 +14,19 @@ import {
 const WeeklyTracker = ({ testDate }) => {
   const theme = useTheme();
   const { tasks } = useTasks();
-  const currentDate = testDate ? new Date(testDate) : new Date(getCurrentUTCDate());
+  const currentDate = testDate || getCurrentUTCDate();
   const startOfWeek = new Date(getStartOfWeekUTC(currentDate, 0)); // 0 for Sunday start
   const today = getDayOfWeekUTC(currentDate);
 
   const isCompletedOnDay = (task, dayIndex) => {
     if (!task.completionHistory) return false;
     const dayDate = new Date(addDaysUTC(startOfWeek, dayIndex));
+    const checkDate = new Date(addDaysUTC(dayDate, 1)); // Check one day earlier
     return task.completionHistory.some(date => {
       const completionDate = new Date(date);
       return isWithinIntervalUTC(completionDate, {
-        start: dayDate,
-        end: new Date(addDaysUTC(dayDate, 1))
+        start: checkDate,
+        end: new Date(addDaysUTC(checkDate, 1))
       });
     });
   };
