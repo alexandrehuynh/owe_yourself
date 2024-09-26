@@ -7,14 +7,15 @@ import {
   getDayOfWeekUTC, 
   formatDateForUser, 
   addDaysUTC, 
-  isWithinIntervalUTC 
+  isWithinIntervalUTC,
+  getCurrentUTCDate
 } from '../utils/dateUtils';
 
 const WeeklyTracker = ({ testDate }) => {
   const theme = useTheme();
   const { tasks } = useTasks();
-  const currentDate = testDate || new Date();
-  const startOfWeek = getStartOfWeekUTC(currentDate, 0); // 0 for Sunday start
+  const currentDate = testDate ? new Date(testDate) : new Date(getCurrentUTCDate());
+  const startOfWeek = new Date(getStartOfWeekUTC(currentDate, 0)); // 0 for Sunday start
   const today = getDayOfWeekUTC(currentDate);
 
   const isCompletedOnDay = (task, dayIndex) => {
@@ -22,7 +23,10 @@ const WeeklyTracker = ({ testDate }) => {
     const dayDate = new Date(addDaysUTC(startOfWeek, dayIndex));
     return task.completionHistory.some(date => {
       const completionDate = new Date(date);
-      return completionDate.toDateString() === dayDate.toDateString();
+      return isWithinIntervalUTC(completionDate, {
+        start: dayDate,
+        end: new Date(addDaysUTC(dayDate, 1))
+      });
     });
   };
 
@@ -30,7 +34,7 @@ const WeeklyTracker = ({ testDate }) => {
     <Box className="weekly-tracker" sx={{ bgcolor: 'background.paper', p: 2, borderRadius: 1 }}>
       <Typography variant="h6" gutterBottom>Weekly Progress</Typography>
       <Typography variant="subtitle2" gutterBottom>
-        {formatDateForUser(startOfWeek, 'PP')} - {formatDateForUser(addDaysUTC(startOfWeek, 6), 'PP')}
+        {formatDateForUser(startOfWeek, 'PP')} - {formatDateForUser(new Date(addDaysUTC(startOfWeek, 6)), 'PP')}
       </Typography>
       {tasks.map((task, taskIndex) => (
         <Box key={taskIndex} mb={2}>
@@ -49,7 +53,7 @@ const WeeklyTracker = ({ testDate }) => {
                       display: 'flex',
                       justifyContent: 'center',
                       alignItems: 'center',
-                      opacity: dayIndex <= today ? 1 : 0.5,
+                      opacity: dayIndex <= (today+1) ? 1 : 0.5,
                       color: theme.palette.text.primary,
                       bgcolor: isCompleted ? theme.palette.primary.main : theme.palette.background.default,
                     }}

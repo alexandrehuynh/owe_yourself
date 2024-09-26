@@ -5,7 +5,8 @@ import {
   getNextMidnightUTC,
   getUTCStartOfDayInUserTimezone,
   formatDateForUser,
-  isUTCDateTodayInUserTimezone
+  isUTCDateTodayInUserTimezone,
+  addDaysUTC
 } from '../utils/dateUtils';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -31,8 +32,8 @@ export const TaskProvider = ({ children }) => {
     };
 
     const scheduleNextCheck = () => {
-      const now = new Date();
-      const nextMidnight = new Date(getNextMidnightUTC());
+      const now = getCurrentUTCDate();
+      const nextMidnight = getNextMidnightUTC();
       const timeUntilMidnight = nextMidnight.getTime() - now.getTime();
 
       setTimeout(() => {
@@ -50,27 +51,27 @@ export const TaskProvider = ({ children }) => {
   }, [lastResetCheck]);
 
   const resetTasks = (tasksToReset) => {
-    const startOfDay = getUTCStartOfDayInUserTimezone();
+    const startOfDay = new Date(getUTCStartOfDayInUserTimezone());
     return tasksToReset.map(task => ({
       ...task,
       done: false,
-      lastCompleted: task.lastCompleted && new Date(task.lastCompleted) >= new Date(startOfDay) 
+      lastCompleted: task.lastCompleted && new Date(task.lastCompleted) >= startOfDay 
         ? task.lastCompleted 
         : null,
-      streak: task.lastCompleted && new Date(task.lastCompleted) >= new Date(startOfDay)
+      streak: task.lastCompleted && new Date(task.lastCompleted) >= startOfDay
         ? task.streak
         : 0
     }));
   };
 
   const updateCompletionHistory = (task, completed) => {
-    const today = formatDateForUser(getCurrentUTCDate(), 'yyyy-MM-dd');
+    const today = getCurrentUTCDate().toISOString();
     let updatedHistory = [...(task.completionHistory || [])];
     
     if (completed && !updatedHistory.includes(today)) {
       updatedHistory.push(today);
     } else if (!completed) {
-      updatedHistory = updatedHistory.filter(date => date !== today);
+      updatedHistory = updatedHistory.filter(date => !isUTCDateTodayInUserTimezone(new Date(date)));
     }
     
     return updatedHistory;
@@ -84,12 +85,11 @@ export const TaskProvider = ({ children }) => {
       if (!lastCompleted) {
         return 1; // First time completion
       }
-      const oneDayInMs = 24 * 60 * 60 * 1000;
-      const daysSinceLastCompleted = Math.floor((today - lastCompleted) / oneDayInMs);
+      const yesterday = new Date(addDaysUTC(today, -1));
       
-      if (daysSinceLastCompleted === 0) {
+      if (isUTCDateTodayInUserTimezone(lastCompleted)) {
         return task.streak; // Already completed today
-      } else if (daysSinceLastCompleted === 1) {
+      } else if (isUTCDateTodayInUserTimezone(yesterday)) {
         return task.streak + 1; // Completed on consecutive day
       } else {
         return 1; // Streak broken, start new streak
@@ -110,7 +110,7 @@ export const TaskProvider = ({ children }) => {
           const updatedTask = { ...task, ...updates };
           if (updates.done !== undefined) {
             const currentDate = getCurrentUTCDate();
-            updatedTask.lastCompleted = updates.done ? currentDate : updatedTask.lastCompleted;
+            updatedTask.lastCompleted = updates.done ? currentDate.toISOString() : updatedTask.lastCompleted;
             updatedTask.completionHistory = updateCompletionHistory(updatedTask, updates.done);
             updatedTask.streak = updateTaskStreak(updatedTask, updates.done);
           }

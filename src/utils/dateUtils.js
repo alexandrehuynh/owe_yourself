@@ -1,6 +1,8 @@
 import { parseISO, format, isAfter, isSameDay, startOfDay, endOfDay, addDays, startOfWeek } from 'date-fns';
 import { toDate, formatInTimeZone } from 'date-fns-tz';
 
+
+
 export const getUserTimezone = () => {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 };
@@ -16,7 +18,7 @@ export const userTimezoneToUTC = (date) => {
 };
 
 export const getCurrentUTCDate = () => {
-  return new Date().toUTCString();
+  return new Date();
 };
 
 export const formatDateForUser = (utcDate, formatStr = 'yyyy-MM-dd HH:mm:ss') => {
@@ -47,19 +49,21 @@ export const getNextMidnightUTC = () => {
   const userTimezone = getUserTimezone();
   const userNow = utcToUserTimezone(new Date());
   const userTomorrow = addDays(startOfDay(userNow), 1);
-  return formatInTimeZone(userTomorrow, userTimezone, "yyyy-MM-dd'T'00:00:00.000'Z'");
+  return new Date(formatInTimeZone(userTomorrow, userTimezone, "yyyy-MM-dd'T'00:00:00.000'Z'"));
 };
 
 export const getStartOfWeekUTC = (date, startDay = 0) => {
   const userTimezone = getUserTimezone();
-  const userDate = utcToUserTimezone(date);
+  const userDate = date instanceof Date ? utcToUserTimezone(date) : utcToUserTimezone(new Date(date));
   const startOfWeekUser = startOfWeek(userDate, { weekStartsOn: startDay });
-  return formatInTimeZone(startOfWeekUser, userTimezone, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+  const startOfWeekUTC = userTimezoneToUTC(startOfWeekUser);
+  return startOfWeekUTC.toISOString();
 };
 
 export const getDayOfWeekUTC = (date) => {
+  const userTimezone = getUserTimezone();
   const userDate = utcToUserTimezone(date);
-  return userDate.getDay();
+  return formatInTimeZone(userDate, userTimezone, 'i') - 1; // 'i' returns day of week (1-7), we subtract 1 to get 0-6
 };
 
 export const addDaysUTC = (date, days) => {

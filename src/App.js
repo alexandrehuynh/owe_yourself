@@ -5,6 +5,7 @@ import TaskInput from './components/TaskInput';
 import TaskList from './components/TaskList';
 import WeeklyTracker from './components/WeeklyTracker';
 import { TaskProvider } from './contexts/TaskContext';
+import { getUserTimezone, userTimezoneToUTC, addDaysUTC } from './utils/dateUtils';
 import './App.css';
 
 const App = () => {
@@ -26,7 +27,16 @@ const App = () => {
   });
 
   const handleSetTestDate = () => {
-    setTestDate(new Date(testDateInput));
+    if (testDateInput) {
+      const userTimezone = getUserTimezone();
+      const [year, month, day] = testDateInput.split('-').map(Number);
+      const localDate = new Date(year, month - 1, day);
+      const utcDate = userTimezoneToUTC(localDate);
+      const adjustedDate = new Date(addDaysUTC(utcDate, 1)); // Add one day
+      setTestDate(adjustedDate);
+    } else {
+      setTestDate(null);
+    }
   };
 
   return (
@@ -53,8 +63,13 @@ const App = () => {
                   size="small"
                 />
                 <Button variant="contained" onClick={handleSetTestDate} size="small">
-                  Set Test Date
+                  {testDate ? 'Update' : 'Set'} Test Date
                 </Button>
+                {testDate && (
+                  <Button variant="outlined" onClick={() => { setTestDate(null); setTestDateInput(''); }} size="small">
+                    Clear Test Date
+                  </Button>
+                )}
               </Box>
             </Box>
             <TaskInput />

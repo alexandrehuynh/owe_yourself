@@ -1,4 +1,9 @@
-import { isUTCDateTodayInUserTimezone, getCurrentUTCDate } from './dateUtils';
+import { 
+  isUTCDateTodayInUserTimezone, 
+  getCurrentUTCDate, 
+  utcToUserTimezone,
+  addDaysUTC
+} from './dateUtils';
 
 export const updateStreak = (task) => {
   const today = getCurrentUTCDate();
@@ -8,8 +13,9 @@ export const updateStreak = (task) => {
     return task; // Already completed today
   }
   
+  const yesterdayUTC = addDaysUTC(today, -1);
   const isConsecutive = lastCompleted && 
-    isUTCDateTodayInUserTimezone(new Date(lastCompleted.getTime() + 24 * 60 * 60 * 1000));
+    isUTCDateTodayInUserTimezone(yesterdayUTC);
   
   return {
     ...task,
