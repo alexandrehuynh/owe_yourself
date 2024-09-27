@@ -101,8 +101,8 @@ const Task = ({ task }) => {
             {showLastCompleted && task.lastCompleted && (
               <span>
                 {" - Last completed: "}
-                {formatDateForUser(task.lastCompleted, 'PPP')}
-                {isUTCDateTodayInUserTimezone(task.lastCompleted) && " (Today)"}
+                {formatDateForUser(new Date(task.lastCompleted), 'PPP')}
+                {isUTCDateTodayInUserTimezone(new Date(task.lastCompleted)) && " (Today)"}
               </span>
             )}
           </>
@@ -116,7 +116,7 @@ const Task = ({ task }) => {
       <Tooltip title={`Streak: ${task.streak}`}>
         <Chip
           icon={<FireIcon />}
-          label={task.streak}
+          label={task.streak.toString()}
           color="primary"
           size="small"
           sx={{ ml: 1 }}

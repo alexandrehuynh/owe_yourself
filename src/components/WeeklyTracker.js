@@ -7,28 +7,21 @@ import {
   getDayOfWeekUTC, 
   formatDateForUser, 
   addDaysUTC, 
-  isWithinIntervalUTC,
-  getCurrentUTCDate
+  getCurrentUTCDate,
 } from '../utils/dateUtils';
 
 const WeeklyTracker = ({ testDate }) => {
   const theme = useTheme();
   const { tasks } = useTasks();
   const currentDate = testDate || getCurrentUTCDate();
-  const startOfWeek = new Date(getStartOfWeekUTC(currentDate, 0)); // 0 for Sunday start
+  const startOfWeek = new Date(getStartOfWeekUTC(currentDate, 0));
   const today = getDayOfWeekUTC(currentDate);
 
   const isCompletedOnDay = (task, dayIndex) => {
     if (!task.completionHistory) return false;
-    const dayDate = new Date(addDaysUTC(startOfWeek, dayIndex));
-    const checkDate = new Date(addDaysUTC(dayDate, 1)); // Check one day earlier
-    return task.completionHistory.some(date => {
-      const completionDate = new Date(date);
-      return isWithinIntervalUTC(completionDate, {
-        start: checkDate,
-        end: new Date(addDaysUTC(checkDate, 1))
-      });
-    });
+    const dayDate = new Date(addDaysUTC(startOfWeek, dayIndex+1));
+    const dayString = dayDate.toISOString().split('T')[0]; 
+    return task.completionHistory.includes(dayString);
   };
 
   return (
@@ -56,7 +49,7 @@ const WeeklyTracker = ({ testDate }) => {
                       alignItems: 'center',
                       opacity: dayIndex <= (today+1) ? 1 : 0.5,
                       color: theme.palette.text.primary,
-                      bgcolor: isCompleted ? theme.palette.primary.main : theme.palette.background.default,
+                      bgcolor: isCompleted ? theme.palette.primary.main : 'transparent',
                     }}
                   >
                     {isCompleted ? (

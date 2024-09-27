@@ -9,6 +9,8 @@ import {
   addDaysUTC
 } from '../utils/dateUtils';
 import { v4 as uuidv4 } from 'uuid';
+import { calculateStreak, updateCompletionHistory } from '../utils/streakUtils';
+
 
 const TaskContext = createContext();
 
@@ -64,57 +66,53 @@ export const TaskProvider = ({ children }) => {
     }));
   };
 
-  const updateCompletionHistory = (task, completed) => {
-    const today = getCurrentUTCDate().toISOString();
-    let updatedHistory = [...(task.completionHistory || [])];
-    
-    if (completed && !updatedHistory.includes(today)) {
-      updatedHistory.push(today);
+  const updateCompletionHistory = (history, date, completed) => {
+    const dateString = date.toISOString().split('T')[0];
+    if (completed && !history.includes(dateString)) {
+      return [...history, dateString];
     } else if (!completed) {
-      updatedHistory = updatedHistory.filter(date => !isUTCDateTodayInUserTimezone(new Date(date)));
+      return history.filter(d => d !== dateString);
     }
-    
-    return updatedHistory;
+    return history;
   };
-
+  
   const updateTaskStreak = (task, completed) => {
     const today = getCurrentUTCDate();
-    const lastCompleted = task.lastCompleted ? new Date(task.lastCompleted) : null;
-    
+    const todayString = today.toISOString().split('T')[0];
+    const yesterdayString = new Date(addDaysUTC(today, -1)).toISOString().split('T')[0];
+  
+    const newCompletionHistory = updateCompletionHistory(task.completionHistory || [], today, completed);
+  
+    let newStreak = task.streak;
     if (completed) {
-      if (!lastCompleted) {
-        return 1; // First time completion
-      }
-      const yesterday = new Date(addDaysUTC(today, -1));
-      
-      if (isUTCDateTodayInUserTimezone(lastCompleted)) {
-        return task.streak; // Already completed today
-      } else if (isUTCDateTodayInUserTimezone(yesterday)) {
-        return task.streak + 1; // Completed on consecutive day
+      if (newCompletionHistory.includes(yesterdayString)) {
+        newStreak += 1;
       } else {
-        return 1; // Streak broken, start new streak
+        newStreak = 1;
       }
     } else {
-      // If unmarking today's completion
-      if (lastCompleted && isUTCDateTodayInUserTimezone(lastCompleted)) {
-        return Math.max(0, task.streak - 1);
+      if (newStreak > 0 && !newCompletionHistory.includes(yesterdayString)) {
+        newStreak -= 1;
       }
-      return task.streak; // No change if unmarking a previous day
     }
+  
+    return {
+      ...task,
+      done: completed,
+      streak: newStreak,
+      lastCompleted: completed ? today : task.lastCompleted,
+      completionHistory: newCompletionHistory
+    };
   };
 
   const updateTask = (taskId, updates) => {
     setTasks(prevTasks => 
       prevTasks.map(task => {
         if (task.id === taskId) {
-          const updatedTask = { ...task, ...updates };
           if (updates.done !== undefined) {
-            const currentDate = getCurrentUTCDate();
-            updatedTask.lastCompleted = updates.done ? currentDate.toISOString() : updatedTask.lastCompleted;
-            updatedTask.completionHistory = updateCompletionHistory(updatedTask, updates.done);
-            updatedTask.streak = updateTaskStreak(updatedTask, updates.done);
+            return updateTaskStreak(task, updates.done);
           }
-          return updatedTask;
+          return { ...task, ...updates };
         }
         return task;
       })
