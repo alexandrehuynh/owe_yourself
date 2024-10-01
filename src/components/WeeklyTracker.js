@@ -35,7 +35,7 @@ const WeeklyTracker = ({ testDate }) => {
           <Typography variant="subtitle1">{task.text}</Typography>
           <Grid container spacing={1}>
             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, dayIndex) => {
-              const isCompleted = isCompletedOnDay(task, dayIndex);
+              const isCompleted = isCompletedOnDay(task, dayIndex+1);
               return (
                 <Grid item key={dayIndex}>
                   <Box
